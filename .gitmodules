@@ -1,0 +1,3 @@
+[submodule "send_http_get/send_http_get/src/send_http_get_backend/miden-winter-wasm"]
+	path = send_http_get/send_http_get/src/send_http_get_backend/miden-winter-wasm
+	url = https://github.com/jonathanxuu/verifier-in-icp.git
