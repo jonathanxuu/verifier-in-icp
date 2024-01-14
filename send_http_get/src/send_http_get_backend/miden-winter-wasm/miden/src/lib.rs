@@ -17,12 +17,8 @@ pub use prover::{
 };
 use serde::{Deserialize, Serialize};
 pub use verifier::{verify, VerificationError};
-extern crate wasm_bindgen;
 use vm_core::Felt;
-use wasm_bindgen::prelude::*;
-use wasm_bindgen_test::console_log;
 use winterfell::{Deserializable, SliceReader};
-extern crate console_error_panic_hook;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct NormalInput {
@@ -44,7 +40,6 @@ pub struct StackOutputsString {
     pub overflow_addrs: Vec<String>,
 }
 
-#[wasm_bindgen]
 pub fn execute_zk_program(program_code: String, stack_init: String, advice_tape: String) -> String {
     let options = ProofOptions::with_96_bit_security();
 
@@ -79,7 +74,6 @@ pub fn execute_zk_program(program_code: String, stack_init: String, advice_tape:
     return final_result;
 }
 
-#[wasm_bindgen]
 pub fn generate_program_hash(program_in_assembly: String) -> String {
     let assembler = Assembler::default().with_library(&stdlib::StdLibrary::default()).unwrap();
     let program = assembler.compile(&program_in_assembly).unwrap();
@@ -122,7 +116,6 @@ pub fn convert_stackinputs(stack_init: String, advice_tape: String) -> NormalInp
     return inputs;
 }
 
-#[wasm_bindgen]
 pub fn verify_zk_bool(
     program_hash: String,
     stack_inputs: String,
@@ -219,9 +212,4 @@ pub fn verify_zk_program(
     let verification_result =
         verify(program_info, stack_input, stack_outputs_origin, zk_outputs.starkproof);
     return verification_result;
-}
-
-#[wasm_bindgen]
-pub fn init_panic_hook() {
-    console_error_panic_hook::set_once();
 }
