@@ -1,3 +1,3 @@
 service : {
-    "get_icp_usd_exchange": () -> (text);
+    "get_icp_usd_exchange": (blob) -> (text);
 }
