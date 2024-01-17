@@ -22,9 +22,10 @@ use std::str;
 
 #[ic_cdk::query]
 async fn get_icp_usd_exchange_query(str_body: String) -> String {
-    let programHash = "79414c1c82c0ef42aff896debc5b8ed351189264f32085ea5fad753b19f48d4e";
-    let publicInput = "7,0,6,5,6,4,6,3,6,2,5,2,4,4,4,3,4,2,3,7,3,5,2,2,2,0,1,2,0,6,0,5,0,2,0,1,18,15,7,7,0,0,8,8";
-    return verify_zk_bool(programHash.to_string(), publicInput.to_string(), str_body).to_string();
+    return str_body.len().to_string();
+    // let programHash = "79414c1c82c0ef42aff896debc5b8ed351189264f32085ea5fad753b19f48d4e";
+    // let publicInput = "7,0,6,5,6,4,6,3,6,2,5,2,4,4,4,3,4,2,3,7,3,5,2,2,2,0,1,2,0,6,0,5,0,2,0,1,18,15,7,7,0,0,8,8";
+    // return verify_zk_bool(programHash.to_string(), publicInput.to_string(), str_body).to_string();
 }
 
 //Update method using the HTTPS outcalls feature
