@@ -21,16 +21,14 @@ use std::str;
 
 //Update method using the HTTPS outcalls feature
 #[ic_cdk::update]
-async fn get_icp_usd_exchange(blob: ByteBuf) -> String {
+async fn get_icp_usd_exchange(str_body: String) -> String {
     //2. SETUP ARGUMENTS FOR HTTP GET request
 
     // 2.1 Setup the URL and its query parameters
     type Timestamp = u64;
-    let start_timestamp: Timestamp = 1682978460; //May 1, 2023 22:01:00 GMT
-    let seconds_of_time: u64 = 60; //we start with 60 seconds
     // let host = "zcloak.s3.us-east-2.amazonaws.com";
-    let blob_vec = blob.into_vec();
-    let str_body = str::from_utf8(&blob_vec).unwrap();
+    // let blob_vec = blob.into_vec();
+    // let str_body = str::from_utf8(&blob_vec).unwrap();
     // let url = "https://zcloak.s3.us-east-2.amazonaws.com/upload_1703133710693.0.8386062893427502.0.json";
     let programHash = "79414c1c82c0ef42aff896debc5b8ed351189264f32085ea5fad753b19f48d4e";
     let publicInput = "7,0,6,5,6,4,6,3,6,2,5,2,4,4,4,3,4,2,3,7,3,5,2,2,2,0,1,2,0,6,0,5,0,2,0,1,18,15,7,7,0,0,8,8";
@@ -111,7 +109,7 @@ async fn get_icp_usd_exchange(blob: ByteBuf) -> String {
 
 
             //Return the body as a string and end the method
-        return verify_zk_bool(programHash.to_string(), publicInput.to_string(), str_body.to_string()).to_string();
+        return verify_zk_bool(programHash.to_string(), publicInput.to_string(), str_body).to_string();
             // str_body
         }
         // Err((r, m)) => {
