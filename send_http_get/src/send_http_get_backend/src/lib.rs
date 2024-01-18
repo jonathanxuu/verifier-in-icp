@@ -105,6 +105,29 @@ async fn sign(message: String) -> Result<SignatureReply, String> {
     })
 }
 
+
+
+#[update]
+async fn sign_get_request_update(message: String) -> Result<SignWithECDSA, String> {
+    let request = SignWithECDSA {
+        message_hash: sha256(&message).to_vec(),
+        derivation_path: vec![],
+        key_id: EcdsaKeyIds::TestKeyLocalDevelopment.to_key_id(),
+    };
+    Ok(request)
+}
+
+#[query]
+async fn sign_get_request_query(message: String) -> Result<SignWithECDSA, String> {
+    let request = SignWithECDSA {
+        message_hash: sha256(&message).to_vec(),
+        derivation_path: vec![],
+        key_id: EcdsaKeyIds::TestKeyLocalDevelopment.to_key_id(),
+    };
+    Ok(request)
+}
+
+
 #[query]
 async fn verify(
     signature_hex: String,
