@@ -151,6 +151,34 @@ async fn verify(
     })
 }
 
+#[query]
+async fn verify_log(
+    // signature_hex: String,
+    // message: String,
+    // public_key_hex: String,
+) -> (Result<SignatureVerificationReply, String>, Vec<u8>, Vec<u8>, Vec<u8>) {
+    let signature_hex = "462b91a22d9c74044a770855d08ab7cd0dbee0a19fad25d07505eef9a5931a6c47d5d2a1593e5e3d4e606a896ad3316e7e9320d98184885ac15a43e346c90c1d";
+    let message = "79414c1c82c0ef42aff896debc5b8ed351189264f32085ea5fad753b19f48d4e";
+    let public_key_hex = "0239d11690b36438a604031158a9196f7a499f9474ebf11d6fb0205a38e99e6aa3";
+
+    let signature_bytes = hex::decode(&signature_hex).expect("failed to hex-decode signature");
+    let pubkey_bytes = hex::decode(&public_key_hex).expect("failed to hex-decode public key");
+    let message_bytes = message.as_bytes();
+
+    use k256::ecdsa::signature::Verifier;
+    let signature = k256::ecdsa::Signature::try_from(signature_bytes.as_slice())
+        .expect("failed to deserialize signature");
+    let is_signature_valid= k256::ecdsa::VerifyingKey::from_sec1_bytes(&pubkey_bytes)
+        .expect("failed to deserialize sec1 encoding into public key")
+        .verify(message_bytes, &signature)
+        .is_ok();
+
+    return (Ok(SignatureVerificationReply{
+        is_signature_valid
+    }), signature_bytes, pubkey_bytes, message_bytes.to_vec())
+}
+
+
 fn mgmt_canister_id() -> CanisterId {
     CanisterId::from_str(&"aaaaa-aa").unwrap()
 }
