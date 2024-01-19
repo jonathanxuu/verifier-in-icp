@@ -211,12 +211,14 @@ pub fn always_fail(_buf: &mut [u8]) -> Result<(), getrandom::Error> {
 // }
 
 #[ic_cdk::update]
-async fn get_icp_usd_exchange(str_body: String) -> String {
+async fn get_icp_usd_exchange() -> (String, String, String, SignatureVerificationReply) {
     // let modified_string = str_body.replace('\'', "\"");
     let program_hash = "79414c1c82c0ef42aff896debc5b8ed351189264f32085ea5fad753b19f48d4e";
-    // let public_input = "7,0,6,5,6,4,6,3,6,2,5,2,4,4,4,3,4,2,3,7,3,5,2,2,2,0,1,2,0,6,0,5,0,2,0,1,18,15,7,7,0,0,8,8";
-    // let verify_result = verify_zk_bool(program_hash.to_string(), public_input.to_string(), modified_string).to_string();
-    // let origin_message = program_hash.to_owned() + public_input + &verify_result;
+
     let signature = sign(program_hash.to_string()).await;
-    return signature.unwrap().signature_hex;
+    let signature_hex = signature.unwrap().signature_hex;
+    let public_key_string = public_key().await.unwrap().public_key_hex;
+    let verify_result: Result<SignatureVerificationReply, String> = verify(signature_hex.clone(), program_hash.to_string(), public_key_string.clone()).await;
+    // sig, publickey, message
+    return (signature_hex, public_key_string, program_hash.to_string(), verify_result.unwrap());
 }
