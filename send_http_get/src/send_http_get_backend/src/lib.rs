@@ -1,60 +1,40 @@
-use ic_cdk_macros::{self, query, update};
+use candid::candid_method;
+use ic_cdk::api::management_canister::http_request::{HttpResponse, TransformArgs};
+use ic_cdk_macros::{self, update, query};
+use std::str::FromStr;
 
-use miden_vm::verify_zk_bool;
-use std::str;
-use cketh_common::eth_rpc_client::providers::{EthMainnetService, EthSepoliaService};
-
-
-use cketh_common::eth_rpc::{
-    Block, FeeHistory, LogEntry, ProviderError, RpcError, SendRawTransactionResult,
+use ic_web3::transports::ICHttp;
+use ic_web3::Web3;
+use ic_web3::ic::{get_eth_addr, KeyInfo};
+use ic_web3::{
+    contract::{Contract, Options},
+    ethabi::ethereum_types::{U64, U256},
+    types::{Address, TransactionParameters, BlockId},
 };
-use candid::{candid_method, CandidType};
 
-mod accounting;
-mod auth;
-mod candid_rpc;
-mod constants;
-mod http;
-mod memory;
-mod metrics;
-mod providers;
-mod types;
-mod util;
-mod validate;
+//const URL: &str = "https://ethereum.publicnode.com";
+const URL: &str = "https://eth-sepolia.public.blastapi.io";
+const CHAIN_ID: u64 = 11155111;
+
+type Result<T, E> = std::result::Result<T, E>;
 
 
-pub use crate::accounting::*;
-pub use crate::auth::*;
-pub use crate::candid_rpc::*;
-pub use crate::constants::*;
-pub use crate::http::*;
-pub use crate::memory::*;
-pub use crate::metrics::*;
-pub use crate::providers::*;
-pub use crate::types::*;
-pub use crate::util::*;
-pub use crate::validate::*;
 
+// send tx to eth
+#[update(name = "send_eth")]
+#[candid_method(update, rename = "send_eth")]
+async fn send_eth(rawTx: String) -> Result<String, String> {
+   
+    let w3 = match ICHttp::new(URL, None, None) {
+        Ok(v) => { Web3::new(v) },
+        Err(e) => { return Err(e.to_string()) },
+    };
 
-pub use candid::Principal;
-
-#[update(name = "eth_sendRawTransaction")]
-#[candid_method(rename = "eth_sendRawTransaction")]
-pub async fn eth_send_raw_transaction(
-    // source: RpcSource,
-    raw_signed_transaction_hex: String,
-) -> MultiRpcResult<SendRawTransactionResult> {
-    let source =  RpcSource::EthSepolia(Some(vec![
-        EthSepoliaService::Ankr,
-        EthSepoliaService::Alchemy,
-    ]));
-
-    match CandidRpcClient::from_source(source) {
-        Ok(source) => {
-            source
-                .eth_send_raw_transaction(raw_signed_transaction_hex)
-                .await
-        }
-        Err(err) => Err(err).into(),
+    match w3.eth().send_raw_transaction(rawTx.clone().into()).await {
+        Ok(txhash) => { 
+            ic_cdk::println!("txhash: {}", hex::encode(txhash.0));
+            Ok(format!("{}", hex::encode(txhash.0)))
+        },
+        Err(_e) => { Ok(hex::encode(rawTx)) },
     }
 }
