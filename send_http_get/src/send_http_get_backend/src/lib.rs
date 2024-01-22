@@ -18,7 +18,13 @@ const CHAIN_ID: u64 = 11155111;
 
 type Result<T, E> = std::result::Result<T, E>;
 
-
+#[query(name = "transform")]
+#[candid_method(query, rename = "transform")]
+fn transform(response: TransformArgs) -> HttpResponse {
+    let mut t = response.response;
+    t.headers = vec![];
+    t 
+}
 
 // send tx to eth
 #[update(name = "send_eth")]
