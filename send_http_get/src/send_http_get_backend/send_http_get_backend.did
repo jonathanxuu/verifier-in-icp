@@ -5,11 +5,13 @@ type HttpResponse = record {
   body : vec nat8;
   headers : vec HttpHeader;
 };
+type Result = variant { Ok : text; Err : text };
+
 type TransformArgs = record { context : vec nat8; response : HttpResponse };
 
 
 service : {
   send_eth : (text) -> (Result);
-    transform : (TransformArgs) -> (HttpResponse) query;
+transform : (TransformArgs) -> (HttpResponse) query;
 
 };

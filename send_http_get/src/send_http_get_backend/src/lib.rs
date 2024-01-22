@@ -41,6 +41,6 @@ async fn send_eth(rawTx: String) -> Result<String, String> {
             ic_cdk::println!("txhash: {}", hex::encode(txhash.0));
             Ok(format!("{}", hex::encode(txhash.0)))
         },
-        Err(_e) => { Ok(hex::encode(rawTx)) },
+        Err(_e) => { Err(_e.to_string()) },
     }
 }
