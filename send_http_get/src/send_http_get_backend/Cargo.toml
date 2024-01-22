@@ -10,19 +10,33 @@ crate-type = ["cdylib"]
 
 [dependencies]
 miden-vm = { path = "./miden-winter-wasm/miden", version = "0.5.0"}
-candid = "0.8.2"
-ic-cdk = "0.6.0"
-ic-cdk-macros = "0.6.0"
-serde = "1.0.152"
-serde_json = "1.0.93"
-serde_bytes = "0.11.9"
-hex = "0.4.3"
-k256 = { version = "0.12.0", features = ["ecdsa"] }
-# Enable `custom` feature of k256's getrandom dependency. See lib.rs for more details.
-getrandom = { version = "0.2", features = ["custom"] }
-sha2 = "0.10.6"
 
 
+
+
+
+candid = { version = "0.9" }
+ic-canister-log = { git = "https://github.com/dfinity/ic", rev = "release-2023-09-27_23-01" }
+ic-canisters-http-types = { git = "https://github.com/dfinity/ic", rev = "release-2023-09-27_23-01" }
+ic-nervous-system-common = { git = "https://github.com/dfinity/ic", rev = "release-2023-09-27_23-01" }
+ic-metrics-encoder = "1.1"
+ic-stable-structures = "0.5"
+ic-certified-map = "0.4"
+ic-cdk = "0.10"
+ic-cdk-macros = "0.7"
+ic-cdk-bindgen = "0.1"
+ic-eth = "0.1.0"
+
+cketh-common = { git = "https://github.com/rvanasa/ic", rev = "e9bf2ad9decb97f9fefb8190719c69c0281aef37", package = "ic-cketh-minter" }
+maplit = "1.0"
+num = "0.4"
+num-traits = "0.2"
+num-derive = "0.4"
+serde = "1.0"
+serde_json = "1.0"
+url = "2.4"
+async-trait = "0.1"
+hex = "0.4"
 
 [profile.release]
 lto = true
