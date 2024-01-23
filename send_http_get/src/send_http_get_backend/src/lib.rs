@@ -69,7 +69,7 @@ async fn public_key() -> Result<PublicKeyReply, String> {
     let request = ECDSAPublicKey {
         canister_id: None,
         derivation_path: vec![],
-        key_id: EcdsaKeyIds::TestKeyLocalDevelopment.to_key_id(),
+        key_id: EcdsaKeyIds::TestKey1.to_key_id(),
     };
 
     let (res,): (ECDSAPublicKeyReply,) =
@@ -87,7 +87,7 @@ async fn sign(message: String) -> Result<SignatureReply, String> {
     let request = SignWithECDSA {
         message_hash: sha256(&message).to_vec(),
         derivation_path: vec![],
-        key_id: EcdsaKeyIds::TestKeyLocalDevelopment.to_key_id(),
+        key_id: EcdsaKeyIds::TestKey1.to_key_id(),
     };
 
     let (response,): (SignWithECDSAReply,) = ic_cdk::api::call::call_with_payment(
@@ -109,7 +109,7 @@ async fn sign_get_request_update(message: String) -> Result<SignWithECDSA, Strin
     let request = SignWithECDSA {
         message_hash: sha256(&message).to_vec(),
         derivation_path: vec![],
-        key_id: EcdsaKeyIds::TestKeyLocalDevelopment.to_key_id(),
+        key_id: EcdsaKeyIds::TestKey1.to_key_id(),
     };
     Ok(request)
 }
@@ -119,7 +119,7 @@ async fn sign_get_request_query(message: String) -> Result<SignWithECDSA, String
     let request = SignWithECDSA {
         message_hash: sha256(&message).to_vec(),
         derivation_path: vec![],
-        key_id: EcdsaKeyIds::TestKeyLocalDevelopment.to_key_id(),
+        key_id: EcdsaKeyIds::TestKey1.to_key_id(),
     };
     Ok(request)
 }
