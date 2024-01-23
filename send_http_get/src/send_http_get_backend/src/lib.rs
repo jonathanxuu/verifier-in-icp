@@ -245,7 +245,7 @@ async fn zk_verify(program_hash: String, public_input: String, proof: String) ->
     let (zk_verify_result, output) =  verify_zk_bool(program_hash.clone(), public_input.clone(), modified_proof.clone());
     
     if (zk_verify_result == false) {
-        return ("Verification failed".to_string(), Vec::new());
+        return ("Verification failed".to_string(), "".to_string(), Vec::new());
     } else {
         let publicInputHash = hex::encode(sha256(&public_input));
         let origin_message = program_hash + &publicInputHash + &output.join("");
