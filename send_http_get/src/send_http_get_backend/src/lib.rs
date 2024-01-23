@@ -277,3 +277,18 @@ async fn zk_verify2(program_hash: String, public_input: String, proof: String) -
         return (signature.signature_hex, publicInputHash, output);
     }
 }
+
+
+#[ic_cdk::update]
+async fn zk_verify3(program_hash: String, public_input: String, proof: String) -> (String) {
+    let modified_proof = proof.replace('\'', "\"");
+
+    let (zk_verify_result, output) =  verify_zk_bool(program_hash.clone(), public_input.clone(), modified_proof.clone());
+    
+    if (zk_verify_result == false) {
+        return ("Verification failed".to_string());
+    } else {
+       
+        return output.join("");
+    }
+}
