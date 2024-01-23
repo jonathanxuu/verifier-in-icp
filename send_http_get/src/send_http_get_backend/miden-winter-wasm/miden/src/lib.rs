@@ -120,7 +120,7 @@ pub fn verify_zk_bool(
     program_hash: String,
     stack_inputs: String,
     zk_outputss: String,
-) -> bool {
+) -> (bool, Vec<String>) {
     let mut stack_inita = Vec::new();
     if stack_inputs.len() != 0 {
         let stack_init: Vec<&str> = stack_inputs.split(',').collect();
@@ -163,7 +163,7 @@ pub fn verify_zk_bool(
 
     let verification_result =
         verify(program_info, stack_input, stack_outputs_origin, zk_outputs.starkproof);
-    return verification_result.is_ok();
+    return (verification_result.is_ok(), zk_outputs.outputs.stack);
 
 }
 pub fn verify_zk_program(
