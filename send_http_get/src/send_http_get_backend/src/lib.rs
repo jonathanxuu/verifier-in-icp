@@ -239,7 +239,7 @@ pub fn always_fail(_buf: &mut [u8]) -> Result<(), getrandom::Error> {
 // }
 
 #[ic_cdk::update]
-async fn zk_verify(program_hash: String, public_input: String, proof: String) -> (String, Vec<String>) {
+async fn zk_verify(program_hash: String, public_input: String, proof: String) -> (String, String, Vec<String>) {
     let modified_proof = proof.replace('\'', "\"");
 
     let (zk_verify_result, output) =  verify_zk_bool(program_hash.clone(), public_input.clone(), modified_proof.clone());
@@ -247,12 +247,13 @@ async fn zk_verify(program_hash: String, public_input: String, proof: String) ->
     if (zk_verify_result == false) {
         return ("Verification failed".to_string(), Vec::new());
     } else {
-        let origin_message = program_hash + &public_input + &output.join("");
+        let publicInputHash = hex::encode(sha256(&public_input));
+        let origin_message = program_hash + &publicInputHash + &output.join("");
         let signature = sign(origin_message).await.unwrap();
         // let signature_hex = signature.unwrap().signature_hex;
         // let public_key_string = public_key().await.unwrap().public_key_hex;
         // let verify_result: Result<SignatureVerificationReply, String> = verify(signature_hex.clone(), program_hash.to_string(), public_key_string.clone()).await;
         // sig, publickey, message
-        return (signature.signature_hex, output);
+        return (signature.signature_hex, publicInputHash, output);
     }
 }
