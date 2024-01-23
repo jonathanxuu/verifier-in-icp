@@ -257,3 +257,23 @@ async fn zk_verify(program_hash: String, public_input: String, proof: String) ->
         return (signature.signature_hex, publicInputHash, output);
     }
 }
+
+#[ic_cdk::update]
+async fn zk_verify2(program_hash: String, public_input: String, proof: String) -> (String, String, Vec<String>) {
+    let modified_proof = proof.replace('\'', "\"");
+
+    let (zk_verify_result, output) =  verify_zk_bool(program_hash.clone(), public_input.clone(), modified_proof.clone());
+    
+    if (zk_verify_result == false) {
+        return ("Verification failed".to_string(), "".to_string(), Vec::new());
+    } else {
+        let publicInputHash = hex::encode(sha256(&public_input));
+        let origin_message = program_hash + &publicInputHash;
+        let signature = sign(origin_message).await.unwrap();
+        // let signature_hex = signature.unwrap().signature_hex;
+        // let public_key_string = public_key().await.unwrap().public_key_hex;
+        // let verify_result: Result<SignatureVerificationReply, String> = verify(signature_hex.clone(), program_hash.to_string(), public_key_string.clone()).await;
+        // sig, publickey, message
+        return (signature.signature_hex, publicInputHash, output);
+    }
+}
