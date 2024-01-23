@@ -13,34 +13,12 @@ use ic_web3::{
 };
 
 //const URL: &str = "https://ethereum.publicnode.com";
-const URL: &str = "https://eth-sepolia.public.blastapi.io";
-const CHAIN_ID: u64 = 11155111;
+// const URL: &str = "https://eth-sepolia.public.blastapi.io";
+// const CHAIN_ID: u64 = 11155111;
 
-type Result<T, E> = std::result::Result<T, E>;
+// type Result<T, E> = std::result::Result<T, E>;
 
-#[query(name = "transform")]
-#[candid_method(query, rename = "transform")]
-fn transform(response: TransformArgs) -> HttpResponse {
-    let mut t = response.response;
-    t.headers = vec![];
-    t 
-}
-
-// send tx to eth
-#[update(name = "send_eth")]
-#[candid_method(update, rename = "send_eth")]
-async fn send_eth(rawTx: String) -> Result<String, String> {
-   
-    let w3 = match ICHttp::new(URL, None, None) {
-        Ok(v) => { Web3::new(v) },
-        Err(e) => { return Err(e.to_string()) },
-    };
-
-    match w3.eth().send_raw_transaction(rawTx.clone().into()).await {
-        Ok(txhash) => { 
-            ic_cdk::println!("txhash: {}", hex::encode(txhash.0));
-            Ok(format!("{}", hex::encode(txhash.0)))
-        },
-        Err(_e) => { Err(_e.to_string()) },
-    }
+#[ic_cdk::query]
+fn greet(param: String) -> String {
+    format!("Hello there, the string's len is {:?}", param.len())
 }
