@@ -3,7 +3,6 @@ use ic_cdk_macros::{self, query, update};
 use miden_vm::verify_zk_bool;
 use std::str;
 
-
 use ic_cdk::export::{
     candid::CandidType,
     serde::{Deserialize, Serialize},
@@ -105,8 +104,6 @@ async fn sign(message: String) -> Result<SignatureReply, String> {
     })
 }
 
-
-
 #[update]
 async fn sign_get_request_update(message: String) -> Result<SignWithECDSA, String> {
     let request = SignWithECDSA {
@@ -127,7 +124,6 @@ async fn sign_get_request_query(message: String) -> Result<SignWithECDSA, String
     Ok(request)
 }
 
-
 #[query]
 async fn verify(
     signature_hex: String,
@@ -141,22 +137,24 @@ async fn verify(
     use k256::ecdsa::signature::Verifier;
     let signature = k256::ecdsa::Signature::try_from(signature_bytes.as_slice())
         .expect("failed to deserialize signature");
-    let is_signature_valid= k256::ecdsa::VerifyingKey::from_sec1_bytes(&pubkey_bytes)
+    let is_signature_valid = k256::ecdsa::VerifyingKey::from_sec1_bytes(&pubkey_bytes)
         .expect("failed to deserialize sec1 encoding into public key")
         .verify(message_bytes, &signature)
         .is_ok();
 
-    Ok(SignatureVerificationReply{
-        is_signature_valid
-    })
+    Ok(SignatureVerificationReply { is_signature_valid })
 }
 
 #[query]
-async fn verify_log(
-    // signature_hex: String,
+async fn verify_log(// signature_hex: String,
     // message: String,
     // public_key_hex: String,
-) -> (Result<SignatureVerificationReply, String>, Vec<u8>, Vec<u8>, Vec<u8>) {
+) -> (
+    Result<SignatureVerificationReply, String>,
+    Vec<u8>,
+    Vec<u8>,
+    Vec<u8>,
+) {
     let signature_hex = "462b91a22d9c74044a770855d08ab7cd0dbee0a19fad25d07505eef9a5931a6c47d5d2a1593e5e3d4e606a896ad3316e7e9320d98184885ac15a43e346c90c1d";
     let message = "79414c1c82c0ef42aff896debc5b8ed351189264f32085ea5fad753b19f48d4e";
     let public_key_hex = "0239d11690b36438a604031158a9196f7a499f9474ebf11d6fb0205a38e99e6aa3";
@@ -168,16 +166,18 @@ async fn verify_log(
     use k256::ecdsa::signature::Verifier;
     let signature = k256::ecdsa::Signature::try_from(signature_bytes.as_slice())
         .expect("failed to deserialize signature");
-    let is_signature_valid= k256::ecdsa::VerifyingKey::from_sec1_bytes(&pubkey_bytes)
+    let is_signature_valid = k256::ecdsa::VerifyingKey::from_sec1_bytes(&pubkey_bytes)
         .expect("failed to deserialize sec1 encoding into public key")
         .verify(message_bytes, &signature)
         .is_ok();
 
-    return (Ok(SignatureVerificationReply{
-        is_signature_valid
-    }), signature_bytes, pubkey_bytes, message_bytes.to_vec())
+    return (
+        Ok(SignatureVerificationReply { is_signature_valid }),
+        signature_bytes,
+        pubkey_bytes,
+        message_bytes.to_vec(),
+    );
 }
-
 
 fn mgmt_canister_id() -> CanisterId {
     CanisterId::from_str(&"aaaaa-aa").unwrap()
@@ -225,70 +225,40 @@ pub fn always_fail(_buf: &mut [u8]) -> Result<(), getrandom::Error> {
     Err(getrandom::Error::UNSUPPORTED)
 }
 
-
-// #[ic_cdk::query]
-// async fn get_icp_usd_exchange_query(str_body: String) -> String {
-//     let modified_string = str_body.replace('\'', "\"");
-
-//     let program_hash = "79414c1c82c0ef42aff896debc5b8ed351189264f32085ea5fad753b19f48d4e";
-//     let public_input = "7,0,6,5,6,4,6,3,6,2,5,2,4,4,4,3,4,2,3,7,3,5,2,2,2,0,1,2,0,6,0,5,0,2,0,1,18,15,7,7,0,0,8,8";
-    // let verify_result = verify_zk_bool(program_hash.to_string(), public_input.to_string(), modified_string).to_string();
-    // let origin_message = program_hash.to_owned() + public_input + &verify_result;
-    // let signature = sign(origin_message).await;
-    // return signature.unwrap().signature_hex;
-// }
-
 #[ic_cdk::update]
-async fn zk_verify(program_hash: String, public_input: String, proof: String) -> (String, String, Vec<String>) {
+async fn zk_verify(
+    program_hash: String,
+    public_input: String,
+    proof: String,
+) -> (String, String, Vec<String>) {
     let modified_proof = proof.replace('\'', "\"");
 
-    let (zk_verify_result, output) =  verify_zk_bool(program_hash.clone(), public_input.clone(), modified_proof.clone());
-    
+    let (zk_verify_result, output) = verify_zk_bool(
+        program_hash.clone(),
+        public_input.clone(),
+        modified_proof.clone(),
+    );
+
     if (zk_verify_result == false) {
-        return ("Verification failed".to_string(), "".to_string(), Vec::new());
+        return (
+            "Verification failed".to_string(),
+            "".to_string(),
+            Vec::new(),
+        );
     } else {
-        let publicInputHash = hex::encode(sha256(&public_input));
-        let origin_message = program_hash + &publicInputHash + &output.join("");
+        let public_input_hash = hex::encode(sha256(&public_input));
+        let origin_message = program_hash + &public_input_hash + &output.join("");
         let signature = sign(origin_message).await.unwrap();
         // let signature_hex = signature.unwrap().signature_hex;
         // let public_key_string = public_key().await.unwrap().public_key_hex;
         // let verify_result: Result<SignatureVerificationReply, String> = verify(signature_hex.clone(), program_hash.to_string(), public_key_string.clone()).await;
         // sig, publickey, message
-        return (signature.signature_hex, publicInputHash, output);
-    }
-}
-
-#[ic_cdk::update]
-async fn zk_verify2(program_hash: String, public_input: String, proof: String) -> (String, String, Vec<String>) {
-    let modified_proof = proof.replace('\'', "\"");
-
-    let (zk_verify_result, output) =  verify_zk_bool(program_hash.clone(), public_input.clone(), modified_proof.clone());
-    
-    if (zk_verify_result == false) {
-        return ("Verification failed".to_string(), "".to_string(), Vec::new());
-    } else {
-        let publicInputHash = hex::encode(sha256(&public_input));
-        let origin_message = program_hash + &publicInputHash;
-        let signature = sign(origin_message).await.unwrap();
-        // let signature_hex = signature.unwrap().signature_hex;
-        // let public_key_string = public_key().await.unwrap().public_key_hex;
-        // let verify_result: Result<SignatureVerificationReply, String> = verify(signature_hex.clone(), program_hash.to_string(), public_key_string.clone()).await;
-        // sig, publickey, message
-        return (signature.signature_hex, publicInputHash, output);
+        return (signature.signature_hex, public_input_hash, output);
     }
 }
 
 
-#[ic_cdk::update]
-async fn zk_verify3(program_hash: String, public_input: String, proof: String) -> (String) {
-    let modified_proof = proof.replace('\'', "\"");
-
-    let (zk_verify_result, output) =  verify_zk_bool(program_hash.clone(), public_input.clone(), modified_proof.clone());
-    
-    if (zk_verify_result == false) {
-        return ("Verification failed".to_string());
-    } else {
-       
-        return output.join("");
-    }
+#[ic_cdk::query]
+fn greet(param: String) -> String {
+    format!("Hello there, the string's len is {:?}", param.len())
 }
