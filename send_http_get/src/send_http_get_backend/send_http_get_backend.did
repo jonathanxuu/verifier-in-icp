@@ -1,4 +1,26 @@
-
+type HttpHeader = record { value : text; name : text };
+type HttpResponse = record {
+  status : nat;
+  body : vec nat8;
+  headers : vec HttpHeader;
+};
+type Result = variant { Ok : text; Err : text };
+type Result_1 = variant { Ok : nat64; Err : text };
+type TransformArgs = record { context : vec nat8; response : HttpResponse };
 service : {
+  batch_request : () -> (Result);
+  get_block : (nat64) -> (Result);
+  get_canister_addr : () -> (Result);
+  get_eth_balance : (text) -> (Result);
+  get_eth_gas_price : () -> (Result);
+  get_tx_count : (text) -> (Result_1);
+  rpc_call : (text) -> (Result);
+  send_eth : (text) -> (Result);
+  send_token : (text, text, nat64, opt nat64) -> (Result);
+  token_balance : (text, text) -> (Result);
+  transform : (TransformArgs) -> (HttpResponse) query;
+
   greet : (text) -> (text);
+  zk_verify: (text, text, text) -> (text, text, vec text);
+  public_key : () -> (variant { Ok: record { public_key_hex: text; }; Err: text });
 };

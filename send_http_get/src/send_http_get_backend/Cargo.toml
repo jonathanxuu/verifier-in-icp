@@ -21,6 +21,7 @@ k256 = { version = "0.12.0", features = ["ecdsa"] }
 # Enable `custom` feature of k256's getrandom dependency. See lib.rs for more details.
 getrandom = { version = "0.2", features = ["custom"] }
 sha2 = "0.10.6"
+ic-web3 = { git = "https://github.com/rocklabs-io/ic-web3", version = "0.1.7" }
 
 
 [profile.release]

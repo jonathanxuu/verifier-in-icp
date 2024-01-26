@@ -10,6 +10,34 @@ use ic_cdk::export::{
 };
 use std::str::FromStr;
 
+
+
+
+use candid::candid_method;
+use ic_cdk::api::management_canister::http_request::{HttpResponse, TransformArgs};
+
+use ic_web3::transports::ICHttp;
+use ic_web3::Web3;
+use ic_web3::ic::{get_eth_addr, KeyInfo};
+use ic_web3::{
+    contract::{Contract, Options},
+    ethabi::ethereum_types::{U64, U256},
+    types::{Address, TransactionParameters, BlockId},
+};
+
+//const URL: &str = "https://ethereum.publicnode.com";
+const URL: &str = "https://eth-goerli.g.alchemy.com/v2/0QCHDmgIEFRV48r1U1QbtOyFInib3ZAm";
+const CHAIN_ID: u64 = 5;
+//const KEY_NAME: &str = "dfx_test_key";
+const KEY_NAME: &str = "test_key_1";
+const TOKEN_ABI: &[u8] = include_bytes!("../src/contract/res/token.json");
+
+type Result<T, E> = std::result::Result<T, E>;
+
+
+
+
+
 #[derive(CandidType, Serialize, Debug)]
 struct PublicKeyReply {
     pub public_key_hex: String,
@@ -261,4 +289,46 @@ async fn zk_verify(
 #[ic_cdk::query]
 fn greet(param: String) -> String {
     format!("Hello there, the string's len is {:?}", param.len())
+}
+
+
+#[update(name = "get_eth_gas_price")]
+#[candid_method(update, rename = "get_eth_gas_price")]
+async fn get_eth_gas_price() -> Result<String, String> {
+    let w3 = match ICHttp::new(URL, None) {
+        Ok(v) => { Web3::new(v) },
+        Err(e) => { return Err(e.to_string()) },
+    };
+    let gas_price = w3.eth().gas_price().await.map_err(|e| format!("get gas price failed: {}", e))?;
+    ic_cdk::println!("gas price: {}", gas_price);
+    Ok(format!("{}", gas_price))
+}
+
+// get canister's ethereum address
+#[update(name = "get_canister_addr")]
+#[candid_method(update, rename = "get_canister_addr")]
+async fn get_canister_addr() -> Result<String, String> {
+    match get_eth_addr(None, None, KEY_NAME.to_string()).await {
+        Ok(addr) => { Ok(hex::encode(addr)) },
+        Err(e) => { Err(e) },
+    }
+}
+
+// send tx to eth
+#[update(name = "send_eth")]
+#[candid_method(update, rename = "send_eth")]
+async fn send_eth(signed_tx: String) -> Result<String, String> {
+
+    let w3 = match ICHttp::new(URL, None) {
+        Ok(v) => { Web3::new(v) },
+        Err(e) => { return Err(e.to_string()) },
+    };
+   
+    match w3.eth().send_raw_transaction(signed_tx.into()).await {
+        Ok(txhash) => { 
+            ic_cdk::println!("txhash: {}", hex::encode(txhash.0));
+            Ok(format!("{}", hex::encode(txhash.0)))
+        },
+        Err(e) => { Err(e.to_string()) },
+    }
 }
