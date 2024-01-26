@@ -11,6 +11,5 @@ service : {
   send_eth : (text) -> (Result);
 
   greet : (text) -> (text);
-  zk_verify: (text, text, text) -> (text, text, vec text);
   public_key : () -> (variant { Ok: record { public_key_hex: text; }; Err: text });
 };
