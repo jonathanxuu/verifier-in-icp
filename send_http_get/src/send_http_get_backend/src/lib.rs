@@ -292,28 +292,6 @@ fn greet(param: String) -> String {
 }
 
 
-#[update(name = "get_eth_gas_price")]
-#[candid_method(update, rename = "get_eth_gas_price")]
-async fn get_eth_gas_price() -> Result<String, String> {
-    let w3 = match ICHttp::new(URL, None) {
-        Ok(v) => { Web3::new(v) },
-        Err(e) => { return Err(e.to_string()) },
-    };
-    let gas_price = w3.eth().gas_price().await.map_err(|e| format!("get gas price failed: {}", e))?;
-    ic_cdk::println!("gas price: {}", gas_price);
-    Ok(format!("{}", gas_price))
-}
-
-// get canister's ethereum address
-#[update(name = "get_canister_addr")]
-#[candid_method(update, rename = "get_canister_addr")]
-async fn get_canister_addr() -> Result<String, String> {
-    match get_eth_addr(None, None, KEY_NAME.to_string()).await {
-        Ok(addr) => { Ok(hex::encode(addr)) },
-        Err(e) => { Err(e) },
-    }
-}
-
 // send tx to eth
 #[update(name = "send_eth")]
 #[candid_method(update, rename = "send_eth")]
