@@ -8,7 +8,7 @@ type Result = variant { Ok : text; Err : text };
 type Result_1 = variant { Ok : nat64; Err : text };
 type TransformArgs = record { context : vec nat8; response : HttpResponse };
 service : {
-  send_eth : (text) -> (Result);
+  send_eth : (text, nat64, opt nat64) -> (Result);
   transform : (TransformArgs) -> (HttpResponse) query;
 
   greet : (text) -> (text);
