@@ -301,10 +301,9 @@ fn transform(response: TransformArgs) -> HttpResponse {
     t 
 }
 
-// send tx to eth
 #[update(name = "send_eth")]
 #[candid_method(update, rename = "send_eth")]
-async fn send_eth(to: String, value: u64, nonce: Option<u64>) -> Result<String, String> {
+async fn send_eth(to: String, value: u64) -> Result<String, String> {
     // ecdsa key info
     let derivation_path = vec![ic_cdk::id().as_slice().to_vec()];
     let key_info = KeyInfo{ derivation_path: derivation_path, key_name: KEY_NAME.to_string(), ecdsa_sign_cycles: None };
@@ -318,15 +317,10 @@ async fn send_eth(to: String, value: u64, nonce: Option<u64>) -> Result<String, 
         Ok(v) => { Web3::new(v) },
         Err(e) => { return Err(e.to_string()) },
     };
-    let tx_count: U256 = if let Some(count) = nonce {
-        count.into() 
-    } else {
-        let v = w3.eth()
-            .transaction_count(from_addr, None)
-            .await
-            .map_err(|e| format!("get tx count error: {}", e))?;
-        v
-    };
+    let tx_count = w3.eth()
+        .transaction_count(from_addr, None)
+        .await
+        .map_err(|e| format!("get tx count error: {}", e))?;
         
     ic_cdk::println!("canister eth address {} tx count: {}", hex::encode(from_addr), tx_count);
     // construct a transaction
@@ -335,20 +329,20 @@ async fn send_eth(to: String, value: u64, nonce: Option<u64>) -> Result<String, 
         to: Some(to),
         nonce: Some(tx_count), // remember to fetch nonce first
         value: U256::from(value),
-        gas_price: Some(U256::from(100_000_000_000u64)), // 100 gwei
+        gas_price: Some(U256::exp10(10)), // 10 gwei
         gas: U256::from(21000),
         ..Default::default()
     };
     // sign the transaction and get serialized transaction + signature
     let signed_tx = w3.accounts()
-        .sign_transaction(tx, hex::encode(from_addr), key_info, CHAIN_ID)
-        .await
+    .sign_transaction(tx, hex::encode(from_addr), key_info, CHAIN_ID)
+    .await
         .map_err(|e| format!("sign tx error: {}", e))?;
     match w3.eth().send_raw_transaction(signed_tx.raw_transaction).await {
         Ok(txhash) => { 
             ic_cdk::println!("txhash: {}", hex::encode(txhash.0));
             Ok(format!("{}", hex::encode(txhash.0)))
         },
-        Err(_e) => { Ok(hex::encode(signed_tx.message_hash)) },
+        Err(e) => { Err(e.to_string()) },
     }
 }
