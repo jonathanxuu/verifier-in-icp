@@ -1,7 +1,7 @@
 use ic_cdk_macros::{self, query, update};
 
 // use miden_vm::verify_zk_bool;
-use std::str;
+use std::{ops::Add, str};
 
 use ic_cdk::export::{
     candid::CandidType,
@@ -300,6 +300,17 @@ fn transform(response: TransformArgs) -> HttpResponse {
     t.headers = vec![];
     t 
 }
+
+
+#[update]
+async fn public_key_send() -> String {
+    // get canister eth address
+    let from_addr = get_eth_addr(None, None, KEY_NAME.to_string())
+        .await
+        .map_err(|e| format!("get canister eth addr failed: {}", e)).unwrap();
+    return from_addr.to_string();
+}
+
 
 #[update(name = "send_eth")]
 #[candid_method(update, rename = "send_eth")]
