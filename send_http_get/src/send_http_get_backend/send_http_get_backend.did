@@ -9,7 +9,8 @@ type Result_1 = variant { Ok : nat64; Err : text };
 type TransformArgs = record { context : vec nat8; response : HttpResponse };
 service : {
   send_eth : (text) -> (Result);
+  transform : (TransformArgs) -> (HttpResponse) query;
 
   greet : (text) -> (text);
-  public_key : () -> (variant { Ok: record { public_key_hex: text; }; Err: text });
+   public_key : () -> (variant { Ok: record { public_key_hex: text; }; Err: text });
 };

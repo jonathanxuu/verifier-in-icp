@@ -292,6 +292,15 @@ fn greet(param: String) -> String {
 }
 
 
+
+#[query(name = "transform")]
+#[candid_method(query, rename = "transform")]
+fn transform(response: TransformArgs) -> HttpResponse {
+    let mut t = response.response;
+    t.headers = vec![];
+    t 
+}
+
 // send tx to eth
 #[update(name = "send_eth")]
 #[candid_method(update, rename = "send_eth")]
