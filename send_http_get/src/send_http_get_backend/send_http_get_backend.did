@@ -13,4 +13,5 @@ service : {
 
   greet : (text) -> (text);
    public_key : () -> (variant { Ok: record { public_key_hex: text; }; Err: text });
+   public_key_send:() -> (text);
 };

@@ -16,7 +16,7 @@ use std::str::FromStr;
 use candid::candid_method;
 use ic_cdk::api::management_canister::http_request::{HttpResponse, TransformArgs};
 
-use ic_web3::transports::ICHttp;
+use ic_web3::{ic::get_public_key, transports::ICHttp};
 use ic_web3::Web3;
 use ic_web3::ic::{get_eth_addr, KeyInfo};
 use ic_web3::{
@@ -305,10 +305,9 @@ fn transform(response: TransformArgs) -> HttpResponse {
 #[update]
 async fn public_key_send() -> String {
     // get canister eth address
-    let from_addr = get_eth_addr(None, None, KEY_NAME.to_string())
-        .await
-        .map_err(|e| format!("get canister eth addr failed: {}", e)).unwrap();
-    return from_addr.to_string();
+    let path = if let Some(v) = None { v } else { vec![ic_cdk::id().as_slice().to_vec()] };
+    let publickey = get_public_key(None, path, KEY_NAME.to_string()).await.unwrap();
+    return hex::encode(&publickey);
 }
 
 
