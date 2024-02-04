@@ -258,6 +258,27 @@ async fn zk_verify(
 }
 
 
+#[ic_cdk::update]
+async fn zk_verify_only(
+    program_hash: String,
+    public_input: String,
+    proof: String,
+) -> String {
+    let modified_proof = proof.replace('\'', "\"");
+
+    let (zk_verify_result, _output) = verify_zk_bool(
+        program_hash.clone(),
+        public_input.clone(),
+        modified_proof.clone(),
+    );
+
+    if zk_verify_result == false {
+        return "Verification failed".to_string()
+    } else {
+        return "Verification Successful".to_string();
+    }
+}
+
 #[ic_cdk::query]
 fn greet(param: String) -> String {
     format!("Hello there, the string's len is {:?}", param.len())
